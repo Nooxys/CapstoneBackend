@@ -36,7 +36,7 @@ public class User implements UserDetails {
     private LocalDate birthDate;
     private String avatar;
 
-    public User(String name, String surname, String username, String email, UserRole role, String password, LocalDate birthDate) {
+    public User(String name, String surname, String username, String email, String password, LocalDate birthDate) {
         this.name = name;
         this.surname = surname;
         this.username = username;

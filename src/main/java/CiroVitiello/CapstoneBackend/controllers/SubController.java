@@ -2,12 +2,17 @@ package CiroVitiello.CapstoneBackend.controllers;
 
 import CiroVitiello.CapstoneBackend.dto.NewSubDTO;
 import CiroVitiello.CapstoneBackend.entities.Subscription;
+import CiroVitiello.CapstoneBackend.entities.User;
 import CiroVitiello.CapstoneBackend.exceptions.BadRequestException;
 import CiroVitiello.CapstoneBackend.services.SubscriptionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -66,4 +71,35 @@ public class SubController {
         return this.ss.uploadImage(image, subID);
     }
 
+    @GetMapping("/me")
+    public Page<Subscription> getMySubs(@AuthenticationPrincipal User user,
+                                        @RequestParam(defaultValue = "0") int page,
+                                        @RequestParam(defaultValue = "10") int size,
+                                        @RequestParam(defaultValue = "id") String sort) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
+        return this.ss.getSubsByUser(user.getId(), pageable);
+    }
+
+    @PutMapping("/{id}/users/me")
+    public Subscription addMeToEvent(@AuthenticationPrincipal User user, @PathVariable UUID id) {
+        return this.ss.addUserToSub(id, user.getId());
+    }
+
+    @DeleteMapping("{id}/users/me")
+    public Subscription removeMeFromSub(@AuthenticationPrincipal User user, @PathVariable UUID id) {
+        return this.ss.removeUserFromSub(id, user.getId());
+    }
+
+    @PutMapping("{id}/users/{userId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public Subscription addUserToEvent(@PathVariable UUID id, @PathVariable UUID userId) {
+        return this.ss.addUserToSub(id, userId);
+    }
+
+    @DeleteMapping("{id}/users/{userId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public Subscription removeUserFromSub(@PathVariable UUID id, @PathVariable UUID userId) {
+        return this.ss.removeUserFromSub(id, userId);
+    }
+    
 }

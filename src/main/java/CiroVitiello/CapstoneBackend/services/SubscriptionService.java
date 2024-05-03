@@ -2,6 +2,8 @@ package CiroVitiello.CapstoneBackend.services;
 
 import CiroVitiello.CapstoneBackend.dto.NewSubDTO;
 import CiroVitiello.CapstoneBackend.entities.Subscription;
+import CiroVitiello.CapstoneBackend.entities.User;
+import CiroVitiello.CapstoneBackend.exceptions.BadRequestException;
 import CiroVitiello.CapstoneBackend.exceptions.NotFoundException;
 import CiroVitiello.CapstoneBackend.repositories.SubscriptionDAO;
 import com.cloudinary.Cloudinary;
@@ -25,6 +27,9 @@ public class SubscriptionService {
 
     @Autowired
     private Cloudinary cloudinaryUploader;
+
+    @Autowired
+    private UserService us;
 
     public Page<Subscription> getSubs(int page, int size, String sortBy) {
         if (size > 50) size = 50;
@@ -63,6 +68,32 @@ public class SubscriptionService {
     public void findByIdAndDelete(UUID id) {
         Subscription found = this.findById(id);
         this.sd.delete(found);
+    }
+
+    public Subscription addUserToSub(UUID subId, UUID userId) {
+        Subscription sub = this.findById(subId);
+        User user = this.us.findById(userId);
+
+        if (sub.getUsers().contains(user)) {
+            throw new BadRequestException("User already in this subscription!");
+        }
+        sub.getUsers().add(user);
+        return this.sd.save(sub);
+    }
+
+    public Subscription removeUserFromSub(UUID subId, UUID userId) {
+        Subscription sub = this.findById(subId);
+        User user = this.us.findById(userId);
+        if (!sub.getUsers().contains(user)) {
+            throw new BadRequestException("User not in this subscription!");
+        }
+        sub.getUsers().remove(user);
+        return this.sd.save(sub);
+    }
+
+    public Page<Subscription> getSubsByUser(UUID userId, Pageable pageable) {
+        User found = this.us.findById(userId);
+        return sd.findAllByUsers(found, pageable);
     }
 
 }

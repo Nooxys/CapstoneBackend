@@ -1,10 +1,14 @@
 package CiroVitiello.CapstoneBackend.services;
 
+import CiroVitiello.CapstoneBackend.dto.ChangePasswordDTO;
 import CiroVitiello.CapstoneBackend.dto.NewUserDTO;
 import CiroVitiello.CapstoneBackend.entities.User;
+import CiroVitiello.CapstoneBackend.enums.UserRole;
 import CiroVitiello.CapstoneBackend.exceptions.BadRequestException;
 import CiroVitiello.CapstoneBackend.exceptions.NotFoundException;
 import CiroVitiello.CapstoneBackend.repositories.UserDAO;
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -12,7 +16,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.UUID;
 
 @Service
@@ -23,6 +29,10 @@ public class UserService {
 
     @Autowired
     private PasswordEncoder bcrypt;
+
+    @Autowired
+    private Cloudinary cloudinaryUploader;
+
 
     public Page<User> getUsers(int page, int size, String sortBy) {
         if (size > 50) size = 50;
@@ -66,6 +76,7 @@ public class UserService {
         found.setEmail(body.email());
         found.setPassword(bcrypt.encode(body.password()));
         found.setBirthDate(body.birthDate());
+        if (!found.getAvatar().contains("cloudinary")) found.setTemporaryAvatar();
         this.ud.save(found);
         return found;
     }
@@ -75,7 +86,34 @@ public class UserService {
         this.ud.delete(found);
     }
 
+    public User uploadImage(MultipartFile image, UUID userId) throws IOException {
+        User found = findById(userId);
+        String url = (String) cloudinaryUploader.uploader().upload(image.getBytes(), ObjectUtils.emptyMap()).get("url");
+        found.setAvatar(url);
+        ud.save(found);
+        return found;
+    }
+
     public User findByEmail(String email) {
         return ud.findByEmail(email).orElseThrow(() -> new NotFoundException("User with " + email + " not found!"));
+    }
+
+    public User updatePassword(UUID id, ChangePasswordDTO psw) {
+        User found = this.findById(id);
+        if (psw.newPassword().equals(psw.oldPassword())) {
+            throw new BadRequestException("The new password cannot be the same as the old one");
+        }
+        if (!bcrypt.matches(psw.oldPassword(), found.getPassword())) {
+            throw new BadRequestException("The old password is incorrect");
+        }
+        String password = bcrypt.encode(psw.newPassword());
+        found.setPassword(password);
+        return ud.save(found);
+    }
+
+    public User updateRole(UUID id, UserRole role) {
+        User found = this.findById(id);
+        found.setRole(role);
+        return this.ud.save(found);
     }
 }

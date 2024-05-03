@@ -30,11 +30,15 @@ public class Subscription {
             inverseJoinColumns = @JoinColumn(name = "user_id"))
     private List<User> users;
 
-    public Subscription(String cover, String title, String description, double price, int daysOfDuration) {
-        this.cover = cover;
+    public Subscription(String title, String description, double price, int daysOfDuration) {
+        setTemporaryCover();
         this.title = title;
         this.description = description;
         this.price = price;
         this.DaysOfDuration = daysOfDuration;
+    }
+
+    public void setTemporaryCover() {
+        this.cover = "https://placehold.co/600x400";
     }
 }

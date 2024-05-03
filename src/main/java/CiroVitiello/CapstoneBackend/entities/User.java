@@ -1,6 +1,7 @@
 package CiroVitiello.CapstoneBackend.entities;
 
 import CiroVitiello.CapstoneBackend.enums.UserRole;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -12,6 +13,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -35,6 +37,9 @@ public class User implements UserDetails {
     private UserRole role;
     private LocalDate birthDate;
     private String avatar;
+    @OneToMany(mappedBy = "user")
+    @JsonIgnore
+    private List<Review> reviews;
 
     public User(String name, String surname, String username, String email, String password, LocalDate birthDate) {
         this.name = name;
@@ -49,6 +54,10 @@ public class User implements UserDetails {
 
     public void setTemporaryAvatar() {
         this.avatar = "https://ui-avatars.com/api/?name=" + this.name + "+" + this.surname;
+    }
+
+    public long getAge() {
+        return ChronoUnit.YEARS.between(this.birthDate, LocalDate.now());
     }
 
     @Override

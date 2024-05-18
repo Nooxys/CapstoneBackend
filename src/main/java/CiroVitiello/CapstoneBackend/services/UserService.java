@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -60,23 +61,58 @@ public class UserService {
 
     public User findByIdAndUpdate(UUID id, NewUserDTO body) {
         User found = this.findById(id);
-        this.ud.findByEmail(body.email())
-                .ifPresent(user -> {
-                    throw new BadRequestException(" email " + user.getEmail() + " already in use!");
-                });
+        if (found.getEmail().equals(body.email()) && found.getUsername().equals(body.username())) {
+            found.setName(body.name());
+            found.setSurname(body.surname());
+            found.setPassword(bcrypt.encode(body.password()));
+            found.setBirthDate(body.birthDate());
+            if (!found.getAvatar().contains("cloudinary")) found.setTemporaryAvatar();
+        }
+        if (found.getEmail().equals(body.email()) && !found.getUsername().equals(body.username())) {
+            this.ud.findByUsername(body.username())
+                    .ifPresent(user -> {
+                        throw new BadRequestException(" username " + user.getUsername() + " already  in use!");
+                    });
+            found.setName(body.name());
+            found.setSurname(body.surname());
+            found.setPassword(bcrypt.encode(body.password()));
+            found.setBirthDate(body.birthDate());
+            found.setUsername(body.username());
+            if (!found.getAvatar().contains("cloudinary")) found.setTemporaryAvatar();
+        }
+        if (found.getUsername().equals(body.username()) && !found.getEmail().equals(body.email())) {
+            this.ud.findByEmail(body.email()).ifPresent(user -> {
+                throw new BadRequestException(" email " + user.getEmail() + " already  in use!");
+            });
+            found.setName(body.name());
+            found.setSurname(body.surname());
+            found.setPassword(bcrypt.encode(body.password()));
+            found.setBirthDate(body.birthDate());
+            found.setEmail(body.email());
+            if (!found.getAvatar().contains("cloudinary")) found.setTemporaryAvatar();
+        }
+        if (!found.getUsername().equals(body.username()) && !found.getEmail().equals(body.email())) {
+            if (this.ud.existsByUsernameAndEmail(body.username(), body.email()))
+                throw new BadRequestException("Username and email are already in use!");
+            this.ud.findByEmail(body.email())
+                    .ifPresent(user -> {
+                        throw new BadRequestException(" email " + user.getEmail() + " already in use!");
+                    });
 
-        this.ud.findByUsername(body.username())
-                .ifPresent(user -> {
-                    throw new BadRequestException(" username " + user.getUsername() + " already  in use!");
-                });
+            this.ud.findByUsername(body.username())
+                    .ifPresent(user -> {
+                        throw new BadRequestException(" username " + user.getUsername() + " already  in use!");
+                    });
 
-        found.setUsername(body.username());
-        found.setName(body.name());
-        found.setSurname(body.surname());
-        found.setEmail(body.email());
-        found.setPassword(bcrypt.encode(body.password()));
-        found.setBirthDate(body.birthDate());
-        if (!found.getAvatar().contains("cloudinary")) found.setTemporaryAvatar();
+            found.setBirthDate(body.birthDate());
+            found.setPassword(bcrypt.encode(body.password()));
+            found.setName(body.name());
+            found.setSurname(body.surname());
+            found.setEmail(body.email());
+            found.setUsername(body.username());
+            if (!found.getAvatar().contains("cloudinary")) found.setTemporaryAvatar();
+        }
+
         this.ud.save(found);
         return found;
     }
@@ -115,5 +151,9 @@ public class UserService {
         User found = this.findById(id);
         found.setRole(role);
         return this.ud.save(found);
+    }
+
+    public List<User> findTrainers() {
+        return ud.findByRole(UserRole.PERSONAL_TRAINER);
     }
 }

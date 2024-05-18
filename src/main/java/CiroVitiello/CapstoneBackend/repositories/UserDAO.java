@@ -1,9 +1,11 @@
 package CiroVitiello.CapstoneBackend.repositories;
 
 import CiroVitiello.CapstoneBackend.entities.User;
+import CiroVitiello.CapstoneBackend.enums.UserRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -12,4 +14,9 @@ public interface UserDAO extends JpaRepository<User, UUID> {
     Optional<User> findByEmail(String email);
 
     Optional<User> findByUsername(String username);
+
+    List<User> findByRole(UserRole role);
+
+    boolean existsByUsernameAndEmail(String username, String email);
+    
 }

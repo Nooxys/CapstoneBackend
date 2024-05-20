@@ -8,6 +8,7 @@ import CiroVitiello.CapstoneBackend.services.ReservationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -21,12 +22,21 @@ public class ReservationController {
     @Autowired
     private ReservationService rs;
 
+    @GetMapping("/me")
+    public Page<Reservation> getMyReservations(@RequestParam(defaultValue = "0") int page,
+                                               @RequestParam(defaultValue = "10") int size,
+                                               @RequestParam(defaultValue = "id") String sortBy,
+                                               @AuthenticationPrincipal User currentUser) {
+        return this.rs.getMyReservations(page, size, sortBy, currentUser.getId());
+    }
+
     @GetMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
     public Page<Reservation> getAllReservations(@RequestParam(defaultValue = "0") int page,
                                                 @RequestParam(defaultValue = "10") int size,
-                                                @RequestParam(defaultValue = "id") String sortBy,
-                                                @AuthenticationPrincipal User currentUser) {
-        return this.rs.getReservations(page, size, sortBy, currentUser.getId());
+                                                @RequestParam(defaultValue = "id") String sortBy
+    ) {
+        return this.rs.getReservations(page, size, sortBy);
     }
 
     @GetMapping("/{reservationId}")

@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -24,9 +24,9 @@ public class Reservation {
     @ManyToOne
     @JoinColumn(name = "pt_id")
     private User pt;
-    private LocalDate date;
+    private LocalDateTime date;
 
-    public Reservation(User client, User pt, LocalDate date) {
+    public Reservation(User client, User pt, LocalDateTime date) {
         this.client = client;
         this.pt = pt;
         this.date = date;

@@ -22,7 +22,13 @@ public class ReservationService {
     @Autowired
     private UserService us;
 
-    public Page<Reservation> getReservations(int page, int size, String sortBy, UUID clientId) {
+    public Page<Reservation> getReservations(int page, int size, String sortBy) {
+        if (size > 50) size = 50;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
+        return this.rd.findAll(pageable);
+    }
+
+    public Page<Reservation> getMyReservations(int page, int size, String sortBy, UUID clientId) {
         if (size > 50) size = 50;
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
         return this.rd.findAll(pageable);
@@ -35,6 +41,12 @@ public class ReservationService {
                             throw new BadRequestException("You already have a reservation with this pt!");
                         }
                 );
+        if (this.rd.existsByClientIdAndDate(clientID, body.date()))
+            throw new BadRequestException("You already have a reservation for this date!");
+        if (this.rd.existsByPtIdAndDate(body.ptId(), body.date()))
+            throw new BadRequestException("This PT already has a reservation for this date!");
+
+
         Reservation newRes = new Reservation(us.findById(clientID), us.findById(body.ptId()), body.date());
         return this.rd.save(newRes);
     }

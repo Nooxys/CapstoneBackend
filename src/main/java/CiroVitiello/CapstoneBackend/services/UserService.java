@@ -2,6 +2,7 @@ package CiroVitiello.CapstoneBackend.services;
 
 import CiroVitiello.CapstoneBackend.dto.ChangePasswordDTO;
 import CiroVitiello.CapstoneBackend.dto.NewUserDTO;
+import CiroVitiello.CapstoneBackend.dto.UpdateUserDTO;
 import CiroVitiello.CapstoneBackend.entities.User;
 import CiroVitiello.CapstoneBackend.enums.UserRole;
 import CiroVitiello.CapstoneBackend.exceptions.BadRequestException;
@@ -59,12 +60,11 @@ public class UserService {
         return this.ud.findById(id).orElseThrow(() -> new NotFoundException(id));
     }
 
-    public User findByIdAndUpdate(UUID id, NewUserDTO body) {
+    public User findByIdAndUpdate(UUID id, UpdateUserDTO body) {
         User found = this.findById(id);
         if (found.getEmail().equals(body.email()) && found.getUsername().equals(body.username())) {
             found.setName(body.name());
             found.setSurname(body.surname());
-            found.setPassword(bcrypt.encode(body.password()));
             found.setBirthDate(body.birthDate());
             if (!found.getAvatar().contains("cloudinary")) found.setTemporaryAvatar();
         }
@@ -75,7 +75,6 @@ public class UserService {
                     });
             found.setName(body.name());
             found.setSurname(body.surname());
-            found.setPassword(bcrypt.encode(body.password()));
             found.setBirthDate(body.birthDate());
             found.setUsername(body.username());
             if (!found.getAvatar().contains("cloudinary")) found.setTemporaryAvatar();
@@ -86,7 +85,6 @@ public class UserService {
             });
             found.setName(body.name());
             found.setSurname(body.surname());
-            found.setPassword(bcrypt.encode(body.password()));
             found.setBirthDate(body.birthDate());
             found.setEmail(body.email());
             if (!found.getAvatar().contains("cloudinary")) found.setTemporaryAvatar();
@@ -105,7 +103,6 @@ public class UserService {
                     });
 
             found.setBirthDate(body.birthDate());
-            found.setPassword(bcrypt.encode(body.password()));
             found.setName(body.name());
             found.setSurname(body.surname());
             found.setEmail(body.email());

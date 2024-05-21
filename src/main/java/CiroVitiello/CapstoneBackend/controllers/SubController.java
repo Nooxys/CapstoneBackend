@@ -81,7 +81,7 @@ public class SubController {
     }
 
     @PutMapping("/{id}/users/me")
-    public Subscription addMeToEvent(@AuthenticationPrincipal User user, @PathVariable UUID id) {
+    public Subscription addMeToSub(@AuthenticationPrincipal User user, @PathVariable UUID id) {
         return this.ss.addUserToSub(id, user.getId());
     }
 
@@ -92,7 +92,7 @@ public class SubController {
 
     @PutMapping("{id}/users/{userId}")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public Subscription addUserToEvent(@PathVariable UUID id, @PathVariable UUID userId) {
+    public Subscription addUserToSub(@PathVariable UUID id, @PathVariable UUID userId) {
         return this.ss.addUserToSub(id, userId);
     }
 
@@ -101,5 +101,5 @@ public class SubController {
     public Subscription removeUserFromSub(@PathVariable UUID id, @PathVariable UUID userId) {
         return this.ss.removeUserFromSub(id, userId);
     }
-    
+
 }

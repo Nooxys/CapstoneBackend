@@ -2,8 +2,8 @@ package CiroVitiello.CapstoneBackend.controllers;
 
 import CiroVitiello.CapstoneBackend.dto.ChangePasswordDTO;
 import CiroVitiello.CapstoneBackend.dto.ChangePasswordResponseDTO;
-import CiroVitiello.CapstoneBackend.dto.NewUserDTO;
 import CiroVitiello.CapstoneBackend.dto.RoleChangeDTO;
+import CiroVitiello.CapstoneBackend.dto.UpdateUserDTO;
 import CiroVitiello.CapstoneBackend.entities.User;
 import CiroVitiello.CapstoneBackend.enums.UserRole;
 import CiroVitiello.CapstoneBackend.exceptions.BadRequestException;
@@ -35,7 +35,7 @@ public class UserController {
     }
 
     @PutMapping("/me")
-    public User updateProfile(@AuthenticationPrincipal User currentUser, @RequestBody @Validated NewUserDTO updatedUser, BindingResult validation) {
+    public User updateProfile(@AuthenticationPrincipal User currentUser, @RequestBody @Validated UpdateUserDTO updatedUser, BindingResult validation) {
         if (validation.hasErrors()) {
             throw new BadRequestException(validation.getAllErrors());
         }
@@ -79,7 +79,7 @@ public class UserController {
 
     @PutMapping("/{userId}")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public User findUserByIdAndUpdate(@PathVariable UUID userId, @RequestBody @Validated NewUserDTO body, BindingResult validation) {
+    public User findUserByIdAndUpdate(@PathVariable UUID userId, @RequestBody @Validated UpdateUserDTO body, BindingResult validation) {
         if (validation.hasErrors()) {
             throw new BadRequestException(validation.getAllErrors());
         }

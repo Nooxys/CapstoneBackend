@@ -28,17 +28,6 @@ public class SubController {
     @Autowired
     private SubscriptionService ss;
 
-    @GetMapping
-    public Page<Subscription> getAllSubs(@RequestParam(defaultValue = "0") int page,
-                                         @RequestParam(defaultValue = "10") int size,
-                                         @RequestParam(defaultValue = "id") String sortBy) {
-        return this.ss.getSubs(page, size, sortBy);
-    }
-
-    @GetMapping("/{subId}")
-    public Subscription findEventsById(@PathVariable UUID subId) {
-        return ss.findById(subId);
-    }
 
     @PostMapping
     @PreAuthorize("hasAuthority('ADMIN')")

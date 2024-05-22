@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -115,11 +114,6 @@ public class UserController {
             throw new BadRequestException(validation.getAllErrors());
         }
         return this.us.updateRole(userId, UserRole.valueOf(role.role()));
-    }
-
-    @GetMapping("/trainers")
-    public List<User> findTrainers() {
-        return this.us.findTrainers();
     }
 
 

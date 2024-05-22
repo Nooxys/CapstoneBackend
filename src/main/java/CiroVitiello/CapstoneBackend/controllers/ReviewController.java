@@ -23,7 +23,7 @@ public class ReviewController {
 
 
     @GetMapping("/me")
-    public List<Review> findByUserID(@AuthenticationPrincipal User currentUser) {
+    public List<Review> getMyReviews(@AuthenticationPrincipal User currentUser) {
         return this.rs.findByUserId(currentUser.getId());
     }
 

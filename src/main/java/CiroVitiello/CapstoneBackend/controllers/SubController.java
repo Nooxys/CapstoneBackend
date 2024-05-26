@@ -67,8 +67,8 @@ public class SubController {
 
     @PostMapping("/upload/{subId}")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public Subscription uploadAvatar(@RequestParam("cover") MultipartFile image, @PathVariable UUID subID) throws IOException {
-        return this.ss.uploadImage(image, subID);
+    public Subscription uploadAvatar(@RequestParam("cover") MultipartFile image, @PathVariable UUID subId) throws IOException {
+        return this.ss.uploadImage(image, subId);
     }
 
     @GetMapping("/me")

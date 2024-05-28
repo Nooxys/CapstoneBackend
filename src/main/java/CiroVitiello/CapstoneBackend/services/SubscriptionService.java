@@ -75,7 +75,7 @@ public class SubscriptionService {
         User user = this.us.findById(userId);
 
         if (sub.getUsers().contains(user)) {
-            throw new BadRequestException("User already in this subscription!");
+            throw new BadRequestException("You are already in this subscription!");
         }
         sub.getUsers().add(user);
         return this.sd.save(sub);

@@ -14,6 +14,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -23,11 +24,9 @@ public class ReservationController {
     private ReservationService rs;
 
     @GetMapping("/me")
-    public Page<Reservation> getMyReservations(@RequestParam(defaultValue = "0") int page,
-                                               @RequestParam(defaultValue = "10") int size,
-                                               @RequestParam(defaultValue = "id") String sortBy,
-                                               @AuthenticationPrincipal User currentUser) {
-        return this.rs.getMyReservations(page, size, sortBy, currentUser.getId());
+    public List<Reservation> getMyReservations(
+            @AuthenticationPrincipal User currentUser) {
+        return this.rs.getMyReservations(currentUser.getId());
     }
 
     @GetMapping

@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -28,10 +29,8 @@ public class ReservationService {
         return this.rd.findAll(pageable);
     }
 
-    public Page<Reservation> getMyReservations(int page, int size, String sortBy, UUID clientId) {
-        if (size > 50) size = 50;
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
-        return this.rd.findAll(pageable);
+    public List<Reservation> getMyReservations(UUID clientId) {
+        return this.rd.findByClientId(clientId);
     }
 
     public Reservation save(NewReservationDTO body, UUID clientID) {
